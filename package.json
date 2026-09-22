@@ -5,9 +5,9 @@
     "license":  "MIT",
     "repository":  {
                        "type":  "git",
-                       "url":  "git+https://github.com/lishuang/dsh-memory-eternal-ws.git"
+                       "url":  "git+https://github.com/lishuang-git/dsh-memory-eternal-ws.git"
                    },
-    "homepage":  "https://github.com/lishuang/dsh-memory-eternal-ws",
+    "homepage":  "https://github.com/lishuang-git/dsh-memory-eternal-ws",
     "author":  "lishuang",
     "publishConfig":  {
                           "registry":  "https://registry.npmjs.org/"
