@@ -218,6 +218,15 @@ powershell -File <包目录>\tools\install.ps1
 
 ### 发布到 npm 前的检查单
 
+0. **本机 registry 是淘宝镜像时的坑**：`npm config get registry` 若返回 `registry.npmmirror.com`，
+   **登录和发布都必须显式指定官方源**，否则会登录到镜像、发布也会失败：
+   ```powershell
+   npm login   --registry=https://registry.npmjs.org/
+   npm whoami  --registry=https://registry.npmjs.org/
+   npm publish --registry=https://registry.npmjs.org/ --access public
+   ```
+   （本包 `package.json` 的 `publishConfig.registry` 已指向官方源，但 `login` / `whoami` 仍受全局配置影响。）
+
 1. `package.json` 里把 `YOUR_GITHUB_USER` / `YOUR_NAME` 换成你自己的（`repository`、`homepage`、`author` 三处）；
 2. 若改用 scope（如 `@you/dsh-memory-eternal-ws`），**必须同步 `build.mjs` 的 `PACKAGE_ID`**，
    两者不一致会导致前端整页 `Failed to load plugins`（见「九、踩过的坑」）；
