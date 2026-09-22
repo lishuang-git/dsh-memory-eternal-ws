@@ -1,0 +1,4 @@
+0000000000000000000000000000000000000000 be13940eb645c423d5390425bd41f070c6c5e45b lis <277674624qq.com> 1790046718 +0800	commit (initial): feat: dsh-memory-eternal-ws 0.8.0 —— fork dsh-memory-eternal v0.7.0 并加入按 DSH 工作区自动切库
+be13940eb645c423d5390425bd41f070c6c5e45b 0ad09ec8124758e5d957a812a2c717d012d85fc8 lis <277674624qq.com> 1790047976 +0800	commit: chore: 填写 author / repository / homepage（lishuang）
+0ad09ec8124758e5d957a812a2c717d012d85fc8 cb78d1948396d36a8303926147d0aab3e4ab42c6 lis <277674624qq.com> 1790049465 +0800	commit: chore: repository/homepage 改为 https://github.com/lishuang-git/dsh-memory-eternal-ws
+cb78d1948396d36a8303926147d0aab3e4ab42c6 7b307abdaf4ae64aba4216212421d350a92124ba lis <277674624qq.com> 1790055531 +0800	commit: chore(release): 0.8.1 —— author 改 lishuang-git；assets 移出版本控制

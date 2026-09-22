@@ -1,240 +1,243 @@
-# 🧠 dsh-memory-eternal — 给 AI 装「第二大脑」
-> ## 🚨 重要：已升级到新版本 [**memory-eternal**](https://github.com/EternalNight996/memory-eternal)
-> 本插件已升级为面向 **多智能体通用** 的独立新项目，不再只依赖单一 DSH 服务。新功能与持续开发请移步：
-> - 📦 npm：`npm i memory-eternal`（or `dsh plugin --profile web add memory-eternal`）
-> - 🐙 GitHub / Gitee：`EternalNight996/memory-eternal`
+# dsh-memory-eternal-ws —— 工作区版记忆核心
 
-<p align="center">
-  <img src="https://img.shields.io/badge/DeepSeek%20Harness-plugin-3B82F6" alt="DSH plugin" />
-  <img src="https://img.shields.io/npm/v/dsh-memory-eternal" alt="npm version" />
-  <img src="https://img.shields.io/github/stars/EternalNight996/dsh-memory-eternal?style=flat" alt="GitHub stars" />
-  <img src="https://img.shields.io/github/license/EternalNight996/dsh-memory-eternal" alt="license" />
-  <a href="https://dsh.market/"><img src="https://raw.githubusercontent.com/2BingLing/dsh-market/master/assets/readme/badge-listed-zh.svg" alt="DSH Market 收录" /></a>
-</p>
-
-> **对话结束自动沉淀，跨会话不失忆；召回只取相关小块，省 token 少噪音。**
-> 全自研、零第三方记忆框架、不改 DSH 源码、一个记忆库所有 Agent 共享，纯 Markdown 可 git 管理。
-
-<p align="center"><strong>⭐ 觉得好用就点个 Star</strong>！ <br/><sub>DSH 一条命令：<code>dsh plugin --profile web add dsh-memory-eternal</code></sub></p>
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/EternalNight996/dsh-memory-eternal/main/assets/screen/dsh-memory-eternal.gif" width="880" alt="对话自动沉淀 + 图形化知识库 + 知识图谱（演示）" />
-</p>
-
----
-
-## 🚀 五分钟上手
-
-### 🟦 DeepSeek Harness（DSH）—— 重点
-
-**装**（dsh-desktop 用 DSH CLI，一条命令）：
-
-```bash
-# dsh-desktop 用户（推荐）：DSH CLI 直接装进 profile
-dsh plugin --profile web add dsh-memory-eternal
-
-# 或直接在 profile（pnpm workspace）里更新。注意用 pnpm，npm install 会报 EUNSUPPORTEDPROTOCOL
-cd ~/.dsh/profiles/web && pnpm add dsh-memory-eternal@latest
-```
-
-**重启 dsh web** 后，三样东西立即生效：
-
-| 效果 | 在哪看 |
-|---|---|
-| 自动沉淀知识卡 | 每轮对话结束自动发生，无需操作 |
-| `memory_recall` 工具 | Agent 需要历史时自动调用 |
-| 图形化界面 | 侧边栏底部「记忆」按钮 / 设置 → 记忆 |
-
-**入口**：侧边栏底部「记忆」按钮 → 记忆库（左栏含 知识卡 / 知识图谱 / 用量 / **审核中心** / 回收中心 / **记忆配置**）；「DSH 设置 → 记忆」= 纯配置页。
-
-**改配置**：记忆库左栏「记忆配置」（或 DSH 设置 → 记忆）→ DSH 记忆配置 / 成本控制 / 自动审核配置 / 服务自管理，点「保存配置」即写入。`autoWebMode`/`watchdogAutoSpawn` 的改动需重启 DSH 生效。
-
-### 🟨 Claude Code
-
-```bash
-npm i -g dsh-memory-eternal     # 装 CLI + MCP（写 ~/.claude.json mcpServers.memory）
-dsh-memory connect claude       # 写 ~/.claude/settings.json 的 SessionEnd hook → 会话结束自动沉淀
-```
-
-装完即用：会话里说「recall 一下数据库选型」→ 自动检索记忆；会话结束 → 自动沉淀进统一 `~/.dsh/memory-vault`（新卡 `pending` 待审核）。
-
-### 🟧 Codex CLI / Cursor
-
-```bash
-npm i -g dsh-memory-eternal     # 装完自动写 Codex config.toml / Cursor mcp.json 的 mcpServers.memory
-dsh-memory connect codex        # 写用户级 ~/.codex/hooks.json 的 Stop hook → 会话结束自动沉淀（含 Codex Desktop）
-dsh-memory connect cursor       # 写 ~/.cursor/hooks.json 的 stop/sessionEnd hook → 自动沉淀
-```
-
-重启工具 → MCP 已在列表，会话里直接：`用 memory_recall 查一下项目历史决策`；会话结束自动沉淀进统一 `~/.dsh/memory-vault`（新卡 `pending` 待审核）。
-
-> **三种 agent 同一套库**：全部写入 `~/.dsh/memory-vault`，每卡 `submittedBy` 区分作者（DeepSeek Harness / claude-code / codex / cursor），主库只显已审核、审核中心管新卡。
-
-> **原生插件（可选，平台 Marketplace）**：仓库含 `.claude-plugin` / `.codex-plugin` / `.cursor-plugin` 清单，可 `claude /plugin marketplace add EternalNight996/dsh-memory-eternal` + `/plugin install`、`codex plugin marketplace add EternalNight996/dsh-memory-eternal` + `codex plugin add`、Cursor Settings→Plugins。`connect` 走用户级 hooks.json（更稳，不依赖 Marketplace 审核；Codex Desktop 也走这条）。
-
-> **只保留本插件（卸载其它记忆插件，如 agentmemory）**：`dsh-memory` 只写自己的键（`mcpServers.memory` / 含 `capture.mjs` 的 hooks），不依赖、也不冲突任何其它记忆插件。卸载其它插件需在其自身配置层删除对应条目（如 Codex 的 `[marketplaces.*]` 与 `hooks.state.*`、其 `hooks.json` 事件、`~/.agentmemory` 数据目录）。
-
-
-
-### 🟩 浏览器（不依赖任何 Agent）
-
-```bash
-dsh-memory open    # 起 web + 开浏览器（默认 http://127.0.0.1:7999）
-```
-
-统计 / 搜索 / 知识卡（增删改合并导入导出）/ 知识图谱，全在此。与 DSH 内嵌页同一份 UI，数据同步。
-
-> **zcode（智谱）**：暂无原生 MCP，经社区 [zcode-open-bridge](https://github.com/tizerluo/zcode-open-bridge) 转 MCP 或用 CLI。
-
----
-
-## 📖 命令速查
-
-```bash
-dsh-memory recall "数据库选型"       # 检索
-dsh-memory capture "重要结论..."     # 手动沉淀（- 读 stdin）
-dsh-memory sweep ~/.claude/projects  # 挖掘已有会话记录
-dsh-memory setup [--dry-run]         # 重跑/预览自动挂载（幂等）
-dsh-memory connect <claude|codex|cursor>  # 写会话结束自动沉淀 hook（用户级 hooks.json，含 Codex Desktop）
-dsh-memory mcp                       # MCP stdio（挂任意 MCP 客户端）
-dsh-memory serve [--port 7999]       # 前台跑 web
-dsh-memory open                      # ensure web 存活 + 开浏览器
-dsh-memory watchdog [--port 7799]    # 看门狗保活 web（独立进程）
-```
-
-单独装（不发 DSH）时 `dsh-memory` 命令来自 `npm i -g`。
-
----
-
-## ⚙️ 服务自管理（白话）
-
-**三个概念**，别搞混：
-
-- **web server 怎么保活**（`autoWebMode`）→ `init`=DSH 启动时拉一次（默认）；`interval`=DSH 进程内定时探活自动拉起（0 额外内存）；`manual`=全手动只从 `dsh-memory open` 起。
-- **看门狗进程**（`watchdogAutoSpawn`，默认开）→ 一个**独立** node 进程，DSH 退出了它也能拉起 web（约 +47 MB 内存）。只在要 7×24 保活时开。
-- **自动挂载 MCP**（`autoMcpSetup`，默认关）→ 是否自动把 MCP 写进 Claude Code/Codex/Cursor 配置。关 = 不碰你本机配置文件，需要时手动 `dsh-memory setup`。
-
-**改这些**：记忆库左栏「记忆配置」（或 DSH 设置 → 记忆）→ 表格里改，点「保存配置」；`autoWebMode`/`watchdogAutoSpawn` 需重启 DSH 生效。
-
-**MCP 是协议不是常驻服务**：agent 开会话才 spawn，用完即退，没有「开机自启」一说。
-
-### 三种部署强度
-
-| 场景 | 配置 | 内存 |
-|---|---|---|
-| 个人开发（默认） | `autoWebMode=init` + `watchdogAutoSpawn=off` | web 47 MB |
-| 常驻 7×24 | `watchdogAutoSpawn=on` | web + watchdog 47+47 MB |
-| 真正开机自启（无 DSH） | Windows 计划任务跑 `dsh-memory watchdog --port 7799 --interval 5000 --max-restart 10` | 同上 |
-
----
-
-## ⚙️ 记忆配置（大白话）
-
-> 所有配置都在 **记忆库左栏「记忆配置」**（或 DSH 设置 → 记忆）里改，点「保存配置」生效。下图就是配置页全貌（含插件信息 / Agent MCP 挂载状态 / 自动审核配置）：
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/EternalNight996/dsh-memory-eternal/main/assets/screen/memory-config.png" width="880" alt="记忆配置页" />
-</p>
-
-### 一、最常用
-
-| 配置项 | 默认 | 大白话说明 |
-|---|---|---|
-| 自动沉淀 | 开 | 每轮聊完自动把有用的内容存成知识卡 |
-| 自动召回 | 开 | AI 需要历史时自动帮你查记忆 |
-| 记忆库目录 | `~/.dsh/memory-vault` | 记忆存哪，纯 Markdown 可 git 管理 |
-
-### 二、省钱包（重要）
-
-| 配置项 | 默认 | 大白话说明 |
-|---|---|---|
-| **蒸馏知识卡** | 开 | 把对话**压缩**成精炼知识卡（要调 AI，花钱）。**关掉 = 存原文**，一分钱不花 |
-| **语义去重喂 AI** | 开 | 判断新内容是不是重复（要调 AI）。**关掉 = 用简单去重**，省一次 AI 调用 |
-| 蒸馏输出上限 | 900 | 压缩一次最多写多少字，越大越准越费钱 |
-| 召回相关性阈值 | 2 | 检索要「多像」才返回，越大越准但漏得越多（越省） |
-| 捕获最小长度 | 200 | 对话太短不存，避免闲聊浪费 |
-| 日配额 | 60 | 一天最多存几张，防 AI 烧钱 |
-
-### 三、服务怎么跑
-
-| 配置项 | 默认 | 大白话说明 |
-|---|---|---|
-| 保活模式 `autoWebMode` | init | `init`=DSH 启动时开一次 web；`interval`=定时检查挂了自动重启；`manual`=全靠手动 |
-| 看门狗 `watchdogAutoSpawn` | 开 | 后台一个**独立进程**保证 web 不死（+47 MB 内存）。个人用可关 |
-| 自动挂载 MCP `autoMcpSetup` | 关 | **让 Claude Code / Codex / Cursor 也能用你的记忆库**。开=自动配好它们；关=不碰你电脑配置，手动跑 `dsh-memory setup` |
-
-> 💰 **想省钱**：把「蒸馏知识卡」关掉、调低「蒸馏输出上限」、调高「召回相关性阈值」。
-
-### 🎯 一键推荐配置（按场景点一下）
-
-配置页顶部有 **🟢 A 轻量省心 / 💰 B 极致省钱 / ⭐ C 高质量** 三个按钮，点一下自动填好对应值，再点保存即可：
-
-| 方案 | 场景 | 保活 | 看门狗 | 蒸馏 | 蒸馏上限 | 召回阈值 | 内存 | LLM 成本 |
-|---|---|---|---|---|---|---|---|---|
-| 🟢 **A 轻量省心** | 个人开发（默认）| init | 关 | 开 | 900 | 2 | ~47 MB | 正常 |
-| 💰 **B 极致省钱** | 预算敏感/多 Agent | init | 关 | **关** | 500 | 3 | ~47 MB | **近 0** |
-| ⭐ **C 高质量** | 长项目/团队 | interval | **开** | 开 | 1200 | 1 | ~94 MB | 高 |
-
----
-
-## 🛡️ 审核中心 & 回收中心
-
-新卡默认进**审核中心**（`pending`），由你确认后才入主库；驳回的进「已驳回」，可恢复或删除进回收站。命中免审条件（审核模式=全部免审 / 免审智能体 / 免审类型）的新卡直接入库；回收站软删卡 30 天内可恢复，超期自动永久删除。
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/EternalNight996/dsh-memory-eternal/main/assets/screen/audit-center.png" width="880" alt="审核中心" />
-</p>
-
-- **待审核 / 已驳回** 双页签，按类型 / 日期 / 智能体筛选，全选后一键「批准 / 驳回 / 删除进回收站」。
-- 审核规则在「记忆配置 → 自动审核配置」：`审核模式`（全部要审 / 全部免审）+ `免审智能体` + `免审类型` + `回收保留天数`。
-
-### 🥇 为什么审核系统更靠谱（对比其它记忆产品）
-
-多数记忆产品（mem0 / Zep / agentmemory…）对话一结束就**自动全量入库**，好坏不论——噪音、错误事实、敏感内容一起进库，之后又被召回，**污染上下文、放大幻觉**。
-
-dsh-memory-eternal 走**人机协同审核**，只让可信内容进主库：
-
-| 维度 | 其它记忆产品 | dsh-memory-eternal 审核系统 |
-|---|---|---|
-| 入库 | 自动全量，无把关 | 新卡先进**审核中心（pending）**，人工批准才入主库 |
-| 质量 | 未过滤噪音/错误 | 只保留你确认过的卡 → 召回更准、噪声更低 |
-| 可信 | 无来源/审核追溯 | 每卡带 `submittedBy` 作者 + `pending/approved/rejected` 审核状态 |
-| 免打扰 | — | 免审智能体 / 免审类型命中 → 可信卡直接入库，零等待 |
-| 容错 | 删了就没 | 回收站软删，30 天内可恢复 |
-
----
-
-## 🧬 为什么全自研
-
-市面上记忆方案多，但大多依赖第三方框架 / 动不动起 MCP 服务 / 记忆锁私有库。本插件把骨架自己搭，**零第三方运行时依赖**，逻辑逐行可读：
-
-| 模块 | 自研实现 | 替代什么 |
-|---|---|---|
-| 去重 | 词法 Jaccard bigram（0.62）+ 语义去重 | 防重复卡 |
-| 检索 | CJK 感知：中文整词 + 字符 bigram | 无需全文搜索引擎 |
-| 图谱 | 力导向 + `[[wikilink]]`/共享标签连边 | 知识关联一眼看清 |
-| 存储 | 带 frontmatter 的普通 `.md` | 不锁库、可读、可 git、可被任意工具读 |
-
-> 与热门项目同向（总结→存储→按需召回），但定位不同：**本地、自研、零依赖、可读可控**。如果你已在用 mem0/Zep 等，也能把它当「本地持久记忆底座」叠加使用。
-
----
-
-## 🛠 开发 / 测试
-
-```bash
-npm i
-npm test        # 单元测试：vault 去重/检索/图谱 + capture 管线 + API 形状
-npm run build   # 构建 lib/client.js（DSH 内嵌）+ web/app.js（独立 web bundle）
-```
-
----
-
-## 📄 License
-
-MIT
-
----
-
-> **让 AI 真正记住你：对话自动沉淀，知识随手可查。** ⭐ 觉得有用就点个 Star，Let's make AI not forget.
+> ## 来源与许可
 >
-> English README: [README.en.md](README.en.md)
+> 本项目是 [`EternalNight996/dsh-memory-eternal`](https://github.com/EternalNight996/dsh-memory-eternal) **v0.7.0** 的
+> **fork（复刻改造）**，不是原作者发布的版本。上游以 **MIT** 许可发布，**版权归原作者所有**；
+> 本 fork 同样以 MIT 发布，并保留上游 `LICENSE` 原文。请勿把本 fork 的问题反馈给上游仓库。
+>
+> **保留全部原有功能**（对话自动沉淀 / 自动召回 / 知识卡 / 知识图谱 / 审核中心 / 回收站 / 记忆配置页 /
+> 独立 web / MCP / hooks / sweep），新增 **按 DSH 工作区自动切库**；改动清单见「六」。
+> **仓库瘦身说明**：为控制体积，本 fork 已把上游 `assets/`（约 9.9 MB 演示图）移出版本控制，
+> 因此上游原 README（已存为 `README.upstream.md`）里的图片不会显示；本文件不依赖它们。
+
+## 一、与原版的行为差异
+
+**一句话**：原版全局只有一个记忆库（靠设置项 `activeVault` 手动切）；本版按「当前会话所属工作区」自动选库，
+每个项目一个独立库，切工作区即切库，且天然支持多工作区并行（互不串库）。
+
+### 新增配置项
+
+| 配置项 | 默认 | 说明 |
+|---|---|---|
+| `vaultMode` | `workspace` | `workspace`=每个项目用自己的库；`global`=全部共用一个库（等同原版行为） |
+| `vaultRelPath` | `.dsh/memory-vault` | 项目库相对**工作区根**的路径 |
+| `globalVaultDir` | `''` | 全局/跨项目共享库；空 = `<DSH_HOME>/memory-vault`（`vaultDir` 非空时优先 `vaultDir`） |
+| `includeGlobalVault` | `true` | `memory_recall` 是否合并全局库结果（跨项目知识） |
+
+原有配置项全部保留，语义不变。
+
+### 库解析顺序
+
+1. **手动覆盖**：`vaultProfiles` 里选中的 `activeVault`（兼容原版行为，调试用）
+2. `vaultMode === 'global'` → 全局库
+3. 否则 → **当前会话所属工作区根** + `vaultRelPath`
+4. 解析不出工作区（如无会话上下文的定时任务）→ 全局库兜底
+
+**工作区根怎么来的**：取 `agent.session.cwd`（或 `session.header.cwd`），
+对 `ctx.workspaceRegistry.list()` 的工作区路径做**最长前缀匹配**；
+注册表不可用时退化为 cwd 本身。
+
+## 二、各链路如何拿到「当前工作区」
+
+| 链路 | 取值方式 |
+|---|---|
+| `memory_recall` 工具 | `execute(args, exec)` → `exec.agent.session.header.cwd` |
+| 自动沉淀（turn-stopping） | 事件回调里的 `agent` → 同上 |
+| 宿主 HTTP API（`/memory-eternal/api/*`） | 请求 query 的 `?cwd=`（其次 `?vault=`），由 `deps.resolveVault(req, query)` 注入 |
+| 前端面板 | **影子包裹 `globalThis.fetch`**：自动给所有 `/memory-eternal/api*` 请求补 `?cwd=`；取值优先级 ① URL 上的 `?cwd=`（iframe/独立页）② DSH 客户端 `sessions` store 的 `sessions.list.getSnapshot()` → `current` + `byId[id].cwd` |
+| iframe（跨源） | 父页把 `currentCwd()` 拼进 iframe `src` 的 `?cwd=`，iframe 内复用同一段取值逻辑 |
+| daily 简报 / 回收站清理 | 遍历 `vaultRoots()`（全局库 + 每个工作区项目库 + 手动登记库） |
+
+> 关键设计：**每次调用实时解析**，不依赖任何「当前工作区」全局状态或切换事件
+> —— DSH 本身没有全局的「当前工作区」，切换工作区只表现为当前会话变化。
+
+## 三、安装
+
+```powershell
+# 1) 构建（需要 node >= 22）
+cd <包目录>
+npm i
+node build.mjs          # 产出 lib/client.js + web/app.js
+
+# 2) 装进 profile（复制包 + 改 bundles + 写配置段），脚本见 tools\install.ps1
+powershell -File tools\install.ps1
+
+# 3) 重启 DSH（bundle 列表变更必须重启才生效）
+```
+
+重启后：
+
+- 侧边栏底部「记忆」按钮 / 设置 → 记忆：界面不变，但数据来自**当前项目**的库；
+- 在项目 A 里的对话只写 A 的库，切到项目 B 就是 B 的库；
+- 已有的卡片若原在集中库，会被 `tools\install.ps1` 迁移到当前项目库。
+
+### 一键验证（重启后运行）
+
+```powershell
+powershell -File tools\verify.ps1
+```
+
+判定标准：
+
+- 第 1 段的 `vaultDir` 应等于「当前项目根 \ `.dsh\memory-vault`」；
+- 第 2 段用 `storages\workspace.json` 里登记的每个工作区逐个模拟 `?cwd=`，应各自显示 `[OK]`、且**任意两个工作区的 vaultDir 不重复**；
+- 若第 1 段仍指向 `C:\Users\...\.dsh\memory-vault`，或第 2 段全部指向同一个库，说明插件未生效（确认已重启 DSH）。
+
+## 四、卸载 / 回退到原版
+
+```powershell
+powershell -File tools\uninstall.ps1     # 改回 bundles、移除包目录
+# 然后重启 DSH
+```
+
+`settings.yaml` 里的 `memory-eternal-ws:` 段可以保留（原版不读它）。
+
+## 五、已知限制
+
+1. **首次生效必须重启 DSH**：`dsh.profile.bundles` 变更不参与 HMR。
+2. **独立 web（7999）同时只服务一个库**：原版靠 `--vault`/`MEMORY_VAULT_DIR` 绑定单库；
+   本版让宿主同源 API（面板主链路）按请求切库，独立 web 主要用于浏览器直连浏览。
+   已修掉原版「探活不校验库 → 旧实例永久占位」的 bug（`lib/web.js` 的 `probeWebServer` 增加 `expectVault`）。
+3. **一个工作区一个库**：工作区内的子目录会话会归到工作区根（符合 DSH 的工作区语义，
+   即「成员资格 = 会话 cwd 等于工作区路径」）。
+4. **`vaultProfiles` / `activeVault` 仍会覆盖自动选库**：留着是为了兼容与调试；想让自动选库生效，把它俩清空。
+6. **MCP / hooks / CLI（`dsh-memory` 命令、`lib/capture-run.js`）不按工作区切库**：它们是给 Claude Code / Codex / Cursor
+   等**外部 agent** 用的独立入口，只能看到 `MEMORY_VAULT_DIR` 或全局默认库。DSH 内部的三条链路（召回 / 沉淀 / 面板）
+   已全部按工作区切库。若要让外部 agent 也分库，在调用前设置
+   `MEMORY_VAULT_DIR=<项目根>\.dsh\memory-vault` 即可。
+7. **审核中心 / 知识图谱 / 回收站 / 配置页等 UI 功能未改动**：只改了「库目录从哪来」，页面与 API 形状不变
+   （`npm test` 覆盖 overview / cards / search / graph / stats / optimize / audit 的返回形状）。
+8. **上游已转向新项目**（`memory-eternal`，SQLite 存储）。本仓库基于 0.7.0 的 Markdown 版，
+   以获得「库是可读、可 git 的 .md」这一特性；新版的修复可按需手动移植（本次已移植一条，见下）。
+
+### 关于 git 与备份
+
+- `<项目>\.dsh\memory-vault\` 是普通目录，**会被 git 跟踪**（本项目 `.gitignore` 只忽略了 `/.dsh-runtime-log/`）。
+  想让记忆随项目提交/备份就保持现状；不想入库就在项目 `.gitignore` 里加一行 `.dsh/`。
+- 迁移前的集中库 `<DSH_HOME>\memory-vault-projects\mwrs.ui` **保留未删**，作为回退备份，
+  确认新插件工作正常后可自行删除。
+- 全局库仍是 `<DSH_HOME>\memory-vault`（原先指向项目库的 junction 已撤销）。
+## 六、本次相对上游 0.7.0 的改动清单
+
+| 文件 | 改动 |
+|---|---|
+| `index.js` | ① `Config` 新增 4 个工作区字段；② 新增 `globalVaultDir/manualVault/workspaceRootFor/vaultFor/agentCwd`，重写 `vaultDir/vaultRoots`；③ `runCapture` 用 `vaultFor(agentCwd(agent))`；④ `memory_recall` 改为 `execute(args, exec)` 并按调用方工作区检索（可合并全局库）；⑤ 系统提示文案不再写死单一库路径；⑥ daily/purge 遍历所有库；⑦ 注入 `resolveVault` 给 API；⑧ **移植新版修复**：会话事件三级自适应 `ownEvents() → snapshotEvents() → events`；⑨ 插件名与 settings 命名空间改为 `memory-eternal-ws` |
+| `lib/api.js` | `vaultRoot` 解析下移到 `query` 之后，改为 `deps.resolveVault(req, query) || vaultDir()` |
+| `lib/web.js` | ① `probeWebServer` 增加 `expectVault` 校验、`ensureWebServer` 传入期望库（避免旧实例永久占位）；② `startWebServer` 的 `createApi` **注入 `resolveVault`**，使独立 web / iframe 面板也能按 `?cwd=` 切库（原版缺这个 resolver，是「切工作区后面板仍显示旧库」的根因之一） |
+| `src/client/index.tsx` | ① `inject` 增加 `'sessions'`；② 新增 `currentCwd()` + `installCwdFetch()`（影子包裹 fetch，幂等）；③ `apply()` 保存 ctx；④ iframe `src` 透传 `?cwd=` |
+| `package.json` | name → `dsh-memory-eternal-ws`，version → `0.8.0-ws.1` |
+| `cordis.patch.yml` | `id`/`name` 改为 `memory-eternal-ws` / `dsh-memory-eternal-ws` |
+
+> 构建产物：`lib/client.js`（121711 → 122606 字符）、`web/app.js`（255KB）。
+> 回归：`npm test` 全绿（21 项）。
+
+## 七、给上游提 PR 的建议
+
+改动集中在 6 个文件、约 250 行，且**默认值即「按项目分库」**。若你希望回馈上游，
+可把 `vaultMode` 默认改成 `global` 再提 PR —— 那样对原用户零行为变化，同时多出可选的按工作区模式。
+
+## 八、验证记录
+
+### 已实测（无需重启 DSH 即可验证的部分）
+
+| 项 | 方法 | 结果 |
+|---|---|---|
+| 产物语法 | `node --check` × 8 个产物 | 全部 OK |
+| 回归测试 | `npm test` | 21 项全绿 |
+| 构建 | `node build.mjs` | `lib/client.js` 122606 字符 / `web/app.js` 255.7KB |
+| 前端注入 | 检查 `lib/client.js` | `inject` 含 `sessions`；`currentCwd()`、`__memoryEternalWsFetch` 已打入 |
+| **按 cwd 切库（端到端）** | 起 `node lib/web.js --port 8011 --vault <全局库>`，用不同 `?cwd=` 请求 `/memory-eternal/api/overview` | 无 cwd → 全局库（total 2）；`cwd=<mwrs.ui>` → `E:\...\mwrs.ui\.dsh\memory-vault`（total 17）；`cwd=<新目录>` → `<该目录>\.dsh\memory-vault`（自动建库，total 0） |
+
+### 真实环境验证（重启 DSH 后实测通过）
+
+| 项 | 方法 | 结果 |
+|---|---|---|
+| 切库（宿主 API） | `tools/verify.ps1` | 5 个工作区**全部 `[OK]`**：`dshWorkSpace` / `mwrs.ui`(17 张) / `mnis` / `pda` / `llstack` 各指向自己的 `.dsh\memory-vault`，互不重复 |
+| 切库（独立 web 7999，即面板 iframe 链路） | 对 7999 请求 `/memory-eternal/api/overview` | 不带 cwd → 全局库(2)；`?cwd=<mwrs.ui>` → 项目库(**17**) |
+| 召回 | 让 Agent 调 `memory_recall` | 命中 `02-Projects/mwrs.ui-项目总览.md`、`03-Knowledge/mwrs.ui-工程规范与目录约定.md` 等项目库卡片 |
+| **面板 UI** | DSH 侧边栏底部「记忆」 | 显示 **17 张**（3 项目 / 5 知识 / 3 内容 / 2 工具 / 1 教训 / 3 系统简报），审核中心 / 知识图谱 / 回收站 / 配置页正常渲染 |
+| 自动沉淀 | 项目库 `00-System/daily-*.md` | 每日回顾正常写入**当前项目**的库 |
+
+> 无会话上下文的裸请求（如直接访问 7999 根路径）会退回**全局库** —— 这是设计上的兜底，不是故障。
+> 首次重启曾因 `build.mjs` 的 `PACKAGE_ID` 未随包名同步导致前端整页白屏；已修复并把校验内建进 `tools/install.ps1`（见「九、踩过的坑」）。
+
+## 九、踩过的坑（排障备忘）
+
+### 1. 客户端 bundle 注册 id 必须等于包名（否则整页白屏）
+
+`lib/client.js` 由 `build.mjs` 生成，包装成 `window.__ModuleLoader__.load({ id, factory })`，
+`id` 取自 `build.mjs` 顶部的 `PACKAGE_ID`。**DSH 要求该 id 等于包的 `name`**，否则前端整页报：
+
+```
+Failed to load plugins
+failed to import loader entry ...: client-modules: bundle ... loaded without registering
+"dsh-memory-eternal-ws" via __ModuleLoader__.load
+```
+
+校验点在 `@deepseek-ai/dsh-client-modules/lib/client.js`：`if (!this.factories.has(id)) throw ...`，
+其中 `id` 来自 bundle 图里的包名。
+
+> 本项目踩过：改名时改了 `package.json.name` 与 `cordis.patch.yml`，却漏改 `build.mjs` 的 `PACKAGE_ID`，
+> 导致 bundle 仍注册旧 id，重启后整页加载失败。**改名必须同步三处**：
+> `package.json.name`、`build.mjs` 的 `PACKAGE_ID`、`cordis.patch.yml` 的 `id` / `name`。
+
+`tools/install.ps1` 已内建该校验（不一致直接中止，不会让你重启后才发现）。手动自查：
+
+```powershell
+node <包目录>\tools\idcheck.mjs "<包目录>\lib\client.js" "<包目录>\package.json"
+```
+
+### 2. 前端取「当前会话目录」的兼容写法
+
+`ctx.get('sessions').list` 在不同 DSH 版本上可能是 `ObservableSnapshot` / `SnapshotStore` / 直接值，
+`src/client/index.tsx` 的 `readSnapshot()` 会依次尝试 `getSnapshot()`、`get()`、`.snapshot`、值本身，
+再从 `SessionListState{ byId, current }` 取 `SessionSummary.cwd`（兼容 `header.cwd`）。
+拿不到时回退到 URL 上的 `?cwd=`，再拿不到就让后端用默认库 —— 不报错，只是退化为单库。
+
+## 十、分发给其他人
+
+### 别人怎么装
+
+方式 A（走 npm，最省事）：
+
+```bash
+dsh plugin --profile web add dsh-memory-eternal-ws
+# 然后重启 DSH
+```
+
+方式 B（拿到 Git 仓库或 zip 后本地安装，无需任何参数）：
+
+```powershell
+powershell -File <包目录>\tools\install.ps1
+# 然后重启 DSH
+```
+
+`tools\install.ps1` 是**零配置**的：默认以脚本所在目录的父目录为包根，profile 从 `$DSH_HOME` 推导；
+复制完包体后会调用 `tools/idcheck.mjs` 校验「bundle 注册 id == 包名」，不一致立即中止（避免重启后才发现白屏）。
+
+卸载：`powershell -File <包目录>\tools\uninstall.ps1`（把 profile 的 bundles 改回上游插件名并移除本包），再重启。
+
+### 发布到 npm 前的检查单
+
+0. **本机 registry 是淘宝镜像时的坑**：`npm config get registry` 若返回 `registry.npmmirror.com`，
+   **登录和发布都必须显式指定官方源**，否则会登录到镜像、发布也会失败：
+   ```powershell
+   npm login   --registry=https://registry.npmjs.org/
+   npm whoami  --registry=https://registry.npmjs.org/
+   npm publish --registry=https://registry.npmjs.org/ --access public
+   ```
+   （本包 `package.json` 的 `publishConfig.registry` 已指向官方源，但 `login` / `whoami` 仍受全局配置影响。）
+
+1. `package.json` 里把 `YOUR_GITHUB_USER` / `YOUR_NAME` 换成你自己的（`repository`、`homepage`、`author` 三处）；
+2. 若改用 scope（如 `@you/dsh-memory-eternal-ws`），**必须同步 `build.mjs` 的 `PACKAGE_ID`**，
+   两者不一致会导致前端整页 `Failed to load plugins`（见「九、踩过的坑」）；
+3. `npm whoami` 确认已登录；
+4. `npm pack --dry-run` 确认包内容包含 `index.js` / `lib` / `web` / `tools` / `cordis.patch.yml`；
+5. `npm publish`（首次发 public 包用 `npm publish --access public`）。
+
+### 跨环境风险（未验证部分）
+
+- 只在 Windows + 单一 DSH 版本上验证过，未在他人环境实测；
+- 前端取「当前会话目录」依赖 `ctx.get('sessions')` 的结构，DSH 版本差异会导致**退化为单库**（不报错）；
+- 上游已转向 `memory-eternal`（SQLite 版），本 fork 基于 0.7.0（Markdown），上游后续修复需手动移植。

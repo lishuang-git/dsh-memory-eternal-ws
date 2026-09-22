@@ -38,7 +38,7 @@
                   "README.md",
                   "README.en.md",
                   "LICENSE",
-                  "README-ws.md",
+                  "README.upstream.md",
                   "tools"
               ],
     "engines":  {
