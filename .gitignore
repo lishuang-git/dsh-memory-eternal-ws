@@ -16,3 +16,6 @@ docs/sessions/
 # dsh-memory-eternal-ws
 *.tmp
 *.log
+
+# 上游演示图（约 9.9MB）：移出版本控制以保持仓库精简，本地文件仍在
+assets/
