@@ -1,0 +1,106 @@
+{
+    "name":  "dsh-memory-eternal-ws",
+    "version":  "0.8.0",
+    "description":  "记忆核心（工作区版 memory-eternal-ws）：按 DSH 工作区自动切库的本地 Markdown 记忆库插件。每个项目用自己的 .dsh/memory-vault，跨项目知识走全局库。fork 自 dsh-memory-eternal v0.7.0，保留自动沉淀 / 自动召回 / 知识卡 / 知识图谱 / 审核中心 / 回收站 / 配置页全部功能。",
+    "license":  "MIT",
+    "repository":  {
+                       "type":  "git",
+                       "url":  "git+https://github.com/YOUR_GITHUB_USER/dsh-memory-eternal-ws.git"
+                   },
+    "homepage":  "https://github.com/YOUR_GITHUB_USER/dsh-memory-eternal-ws",
+    "author":  "YOUR_NAME",
+    "publishConfig":  {
+                          "registry":  "https://registry.npmjs.org/"
+                      },
+    "type":  "module",
+    "main":  "index.js",
+    "bin":  {
+                "dsh-memory":  "bin/dsh-memory.mjs"
+            },
+    "exports":  {
+                    ".":  "./index.js",
+                    "./client":  "./lib/client.js",
+                    "./cordis.patch.yml":  "./cordis.patch.yml",
+                    "./package.json":  "./package.json"
+                },
+    "files":  [
+                  "index.js",
+                  "lib",
+                  "bin",
+                  "web",
+                  "hooks",
+                  "skills",
+                  ".claude-plugin",
+                  ".codex-plugin",
+                  ".cursor-plugin",
+                  ".mcp.json",
+                  "cordis.patch.yml",
+                  "README.md",
+                  "README.en.md",
+                  "LICENSE",
+                  "README-ws.md",
+                  "tools"
+              ],
+    "engines":  {
+                    "node":  "\u003e=22"
+                },
+    "keywords":  [
+                     "deepseek-harness",
+                     "dsh",
+                     "dsh-plugin",
+                     "plugin",
+                     "memory",
+                     "knowledge-base",
+                     "vault",
+                     "markdown",
+                     "knowledge-graph",
+                     "rag",
+                     "second-brain",
+                     "workspace",
+                     "per-project"
+                 ],
+    "scripts":  {
+                    "build":  "node build.mjs",
+                    "build:client":  "node build.mjs",
+                    "prepublishOnly":  "node build.mjs",
+                    "test":  "node tests/vault.test.mjs \u0026\u0026 node tests/capture.test.mjs \u0026\u0026 node tests/api.test.mjs"
+                },
+    "dependencies":  {
+                         "@deepseek-ai/schemastery":  "^3.18.1"
+                     },
+    "peerDependencies":  {
+                             "@deepseek-ai/cordis":  "^4.0.1",
+                             "@deepseek-ai/dsh-llm":  "\u003e=0.1.0-rc.2 \u003c0.2.0",
+                             "@deepseek-ai/dsh-tools":  "\u003e=0.1.0-rc.2 \u003c0.2.0"
+                         },
+    "devDependencies":  {
+                            "@types/react":  "^18.3.1",
+                            "esbuild":  "^0.24.0",
+                            "react":  "18.3.1",
+                            "react-dom":  "18.3.1"
+                        },
+    "dsh":  {
+                "client":  {
+                               "platform":  "web",
+                               "inject":  [
+                                              "@deepseek-ai/dsh-client-runtime",
+                                              "@deepseek-ai/dsh-client-ui-settings",
+                                              "@deepseek-ai/dsh-client-locale",
+                                              "@deepseek-ai/dsh-client-connection",
+                                              "@deepseek-ai/dsh-api-remotes"
+                                          ]
+                           },
+                "bundle":  {
+                               "patch":  "./cordis.patch.yml"
+                           },
+                "marketplace":  {
+                                    "profiles":  [
+                                                     "web"
+                                                 ],
+                                    "requiresBuildApproval":  false,
+                                    "requiresRestart":  true,
+                                    "manualSteps":  false
+                                }
+            },
+    "forkedFrom":  "EternalNight996/dsh-memory-eternal@0.7.0 (MIT)"
+}
